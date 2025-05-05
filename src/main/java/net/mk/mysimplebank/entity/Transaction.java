@@ -24,4 +24,9 @@ public class Transaction {
     private TransactionType type;
     private String category;
     private LocalDateTime createdDate;
+    private String merchantName;         // Название магазина или поставщика услуг
+    private String merchantCategoryCode; // MCC-код продавца
+    private String cardNumber;           // Последние 4 цифры номера карты (при оплате картой)
+    private String bankName;             // Название банка (при банковском переводе)
+    private String digitalWalletId;      // Идентификатор электронного кошелька (при оплате через электронные кошельки)
 }
