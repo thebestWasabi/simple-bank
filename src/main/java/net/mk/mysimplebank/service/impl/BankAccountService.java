@@ -1,16 +1,20 @@
 package net.mk.mysimplebank.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import net.mk.mysimplebank.anatation.LogExecutionTime;
 import net.mk.mysimplebank.entity.BankAccount;
 import net.mk.mysimplebank.entity.Transaction;
 import net.mk.mysimplebank.entity.TransactionType;
 import net.mk.mysimplebank.entity.User;
+import net.mk.mysimplebank.service.IBankAccountService;
 import net.mk.mysimplebank.service.PaymentGatewayService;
+import net.mk.mysimplebank.service.PaymentStrategy;
 import net.mk.mysimplebank.service.notification.ExternalNotificationService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Сервис отвечает за управление счетами, включая создание, удаление и пополнение
@@ -20,47 +24,24 @@ import java.util.List;
  */
 
 @RequiredArgsConstructor
-public class BankAccountService {
-    private final PaymentGatewayService paymentGatewayService;
+public class BankAccountService implements IBankAccountService {
+    private final PaymentGatewayService paymentGatewayService = PaymentGatewayService.getInstance();
     private final ExternalNotificationService externalNotificationService;
 
     public BankAccount findAccountById(final int accountId) {
-        return createTestAccount();
+        return createTestAccount(); // временно заглушка
     }
 
     public void withdraw(final BankAccount account, final BigDecimal amount) {
         account.setBalance(account.getBalance().subtract(amount));
     }
 
-    public void processCardPayment(final BankAccount account, final BigDecimal amount,
-                                   final String cardNumber, final String merchantName) {
-        withdraw(account, amount);
-
-        //создание транзакции
-        System.out.println("Processed bank transfer for account " + account.getId());
-        paymentGatewayService.authorize("Платеж по карте", amount);
-        externalNotificationService.sendSms(account.getOwner().getPhoneNumber(), "Произошел платеж по карте");
-        externalNotificationService.sendEmail(account.getOwner().getEmail(), "Информация о платеже", "Произошел платеж по карте");
-    }
-
-    public void processBankTransfer(final BankAccount account, final BigDecimal amount, final String bankName) {
-        withdraw(account, amount);
-
-        //создание транзакции
-        System.out.println("Processed bank transfer for account " + account.getId());
-        paymentGatewayService.authorize("Платеж по карте", amount);
-        externalNotificationService.sendSms(account.getOwner().getPhoneNumber(), "Произошел платеж по карте");
-        externalNotificationService.sendEmail(account.getOwner().getEmail(), "Информация о платеже", "Произошел платеж по карте");
-    }
-
-    public void processWalletPayment(final BankAccount account, final BigDecimal amount, final String walletId) {
-        withdraw(account, amount);
-
-        //создание транзакции
-        System.out.println("Processed bank transfer for account " + account.getId());
-        paymentGatewayService.authorize("Платеж по карте", amount);
-        externalNotificationService.sendSms(account.getOwner().getPhoneNumber(), "Произошел платеж по карте");
-        externalNotificationService.sendEmail(account.getOwner().getEmail(), "Информация о платеже", "Произошел платеж по карте");
+    @Override
+    @LogExecutionTime
+    public void processPayment(final BankAccount account, final BigDecimal amount,
+                               final PaymentStrategy strategy,
+                               final Map<String,String> details) {
+        strategy.process(account, amount, details);
     }
 
     public static BankAccount createTestAccount() {
