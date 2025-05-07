@@ -11,7 +11,7 @@ import net.mk.mysimplebank.entity.Refund;
  */
 @RequiredArgsConstructor
 public class RefundService {
-    private final PaymentGatewayService paymentGatewayService;
+    private final PaymentGatewayService paymentGatewayService = PaymentGatewayService.getInstance();
 
     public void createRefund(final Refund refund) {
         paymentGatewayService.refund(refund.getDescription(), refund.getAmount());

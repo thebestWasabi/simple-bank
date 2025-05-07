@@ -9,8 +9,17 @@ import java.math.BigDecimal;
  * @link <a href="https://mkcoder.net">mkcoder.net</a>
  */
 public class PaymentGatewayService {
-    public PaymentGatewayService() {
+    // Приватное статическое поле с единственным экземпляром
+    private static final PaymentGatewayService INSTANCE = new PaymentGatewayService();
+
+    // Приватный конструктор
+    private PaymentGatewayService() {
         System.out.println("Создано новое подключение к платёжной системе...");
+    }
+
+    // Публичный метод для доступа к экземпляру
+    public static PaymentGatewayService getInstance() {
+        return INSTANCE;
     }
 
     public boolean authorize(final String txId, final BigDecimal amount) {
